@@ -1,11 +1,11 @@
 import pytest
 import random
-from heap import ArrayMaxHeap
+from array_heap import ArrayMaxHeap
 
 # -----------------------------------------------------------------------------
 # Author: Colin McClelland
 # Date: 1/30/2025
-# Description: Unit tests for 3-ary max heap implementation
+# Description: Unit tests for binary max heap implementation
 # -----------------------------------------------------------------------------
 
 
@@ -72,7 +72,7 @@ def test_is_valid():
 
 
 def test_is_empty():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     assert heap.is_valid()
     assert heap.size() == 0
     assert heap.is_empty()
@@ -87,7 +87,7 @@ def test_is_empty():
 
 
 def test_contains():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('a',1)
     heap.insert('b',2)
     heap.insert('c',3)
@@ -118,7 +118,7 @@ def test_contains():
 
 
 def test_size():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     assert heap.size() == 0
 
     num_elements = 1000
@@ -134,7 +134,7 @@ def test_size():
 
 # Tests for insert()
 def test_one_insert():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert(1,1)
     assert heap.is_valid()
     assert heap.size() == 1
@@ -142,7 +142,7 @@ def test_one_insert():
 
 
 def test_two_elements_lower_priority_inserted_first():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('a',1)
     heap.insert('b',2)
     assert heap.is_valid()
@@ -152,7 +152,7 @@ def test_two_elements_lower_priority_inserted_first():
 
 
 def test_two_elements_higher_priority_inserted_first():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('a',2)
     heap.insert('b',1)
     assert heap.contains('a')
@@ -161,7 +161,7 @@ def test_two_elements_higher_priority_inserted_first():
 
 
 def test_two_elements_same_priorities():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('a',1)
     heap.insert('b',1)
     assert heap.contains('a')
@@ -170,14 +170,14 @@ def test_two_elements_same_priorities():
 
 
 def test_two_elements_same_priorities():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('a',1)
     heap.insert('b',1)
     assert heap.is_valid()
 
 
 def test_two_elements_update_priority():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('a', 1)
     heap.insert('b', 2)
     assert heap.is_valid()
@@ -189,7 +189,7 @@ def test_two_elements_update_priority():
 
 
 def test_many_inserts_ascending_order():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('a',1)
     heap.insert('b',2)
     heap.insert('c',3)
@@ -215,7 +215,7 @@ def test_many_inserts_ascending_order():
 
 
 def test_many_inserts_descending_order():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('a', 10)
     heap.insert('b', 9)
     heap.insert('c', 8)
@@ -232,7 +232,7 @@ def test_many_inserts_descending_order():
 
 
 def test_many_inserts_mixed_order():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('e', 6)
     heap.insert('i', 2)
     heap.insert('c', 8)
@@ -250,7 +250,7 @@ def test_many_inserts_mixed_order():
 
 def test_random_heap_insert():
     for i in range(5):
-        heap = ArrayMaxHeap(3)
+        heap = ArrayMaxHeap()
         existing_elements = set()
         num_inserts = 1000
 
@@ -269,7 +269,7 @@ def test_random_heap_insert():
 
 # Tests for update()
 def test_update_heap_single_element():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('a', 1)
     assert heap.get_element_priority('a') == 1
     heap.update('a', 5)
@@ -277,7 +277,7 @@ def test_update_heap_single_element():
 
 
 def test_update_heap_two_elements():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('a', 1)
     heap.insert('b', 2)
     assert heap.get_element_priority('a') == 1
@@ -288,7 +288,7 @@ def test_update_heap_two_elements():
 
 
 def test_update_heap_many_elements():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     num_elements = 20
     for i in range(0, num_elements):
         heap.insert(i, i)
@@ -302,7 +302,7 @@ def test_update_heap_many_elements():
 
 # Tests for delete()
 def test_delete_single_element():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('a',1)
     assert heap.size() == 1
     assert heap.contains('a') == True
@@ -312,7 +312,7 @@ def test_delete_single_element():
 
 
 def test_delete_leaves_until_empty():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('a',1)
     heap.insert('b',2)
     heap.insert('c',3)
@@ -344,7 +344,7 @@ def test_delete_leaves_until_empty():
 
 
 def test_heap_delete_root():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
 
     heap.insert(67, 24)
     heap.insert(12, 51)
@@ -364,7 +364,7 @@ def test_heap_delete_root():
 
 
 def test_delete_root_until_empty():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('a',1)
     heap.insert('b',2)
     heap.insert('c',3)
@@ -416,20 +416,20 @@ def test_delete_root_until_empty():
 
 # Tests for top
 def test_top_empty_heap():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     with pytest.raises(IndexError):
         heap.top()
 
 
 def test_top_one_element():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('a', 1)
     assert heap.top() == 'a'
     assert heap.is_empty()
 
 
 def test_top_mant_elements():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('e', 6)
     heap.insert('i', 2)
     heap.insert('c', 8)
@@ -455,19 +455,19 @@ def test_top_mant_elements():
 
 
 def test_peek_empty_heap():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     with pytest.raises(IndexError):
         heap.peek()
 
 
 def test_peek_one_element():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('a', 1)
     assert heap.peek() == 'a'
 
 
 def test_peek_mant_elements():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('e', 6)
     heap.insert('i', 2)
     heap.insert('c', 8)
@@ -485,7 +485,7 @@ def test_peek_mant_elements():
 
 
 def top_peek_consistent():
-    heap = ArrayMaxHeap(3)
+    heap = ArrayMaxHeap()
     heap.insert('e', 6)
     heap.insert('i', 2)
     heap.insert('c', 8)

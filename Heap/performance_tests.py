@@ -1,7 +1,7 @@
 import time
 import random
 import matplotlib.pyplot as plt
-from heap import ArrayMaxHeap
+from array_heap import ArrayMaxHeap
 
 
 
@@ -68,4 +68,4 @@ def generate_data(num_elements, order):
 
 # sample call to performance_test
 heap = ArrayMaxHeap()
-performace_test(heap.insert, stop = 500000, step=50000, order="random", visualize = True)
+performace_test(heap.insert, stop = 1000000, step=50000, order="random", visualize = True)

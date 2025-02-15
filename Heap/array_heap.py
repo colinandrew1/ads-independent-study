@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # Author: Colin McClelland
 # Date: 1/30/2025
-# Description: Implementation of a Max Heap based on the description from Advanced Algorithms and Data Structures by Marello La Roca
+# Description: Array implementation of a Max Heap based on the description from Advanced Algorithms and Data Structures by Marello La Roca
 # -----------------------------------------------------------------------------
 
 
@@ -103,7 +103,6 @@ class ArrayMaxHeap:
         del self.index_map[element_title]
 
         if cur_idx < len(self.elements):    # only need to rebalance if deleted element was not at end
-            print("cur_idx", cur_idx)
             self.elements[cur_idx] = last_element   # store last element at current index
             self.index_map[last_element[0]] = cur_idx
             self._push_down(cur_idx)  # then push down the heap as necessary
@@ -150,6 +149,20 @@ class ArrayMaxHeap:
     def clear_heap(self):
         self.elements = []
         self.index_map = {}
+
+
+    def is_valid(self):
+        cur_idx = 0 # start at root
+        first_leaf_idx = self._first_leaf_index()    # leaves will be checked via their parents
+        while cur_idx < first_leaf_idx: # traversing down the tree, verifying valid subtrees
+            cur_priority = self.elements[cur_idx][1]
+            first_child_idx = self._first_child_index(cur_idx)
+            last_child_idx = min(first_child_idx + self.d, len(self.elements))
+            for child_idx in range(first_child_idx, last_child_idx):    # for each node in the tree:
+                if cur_priority < self.elements[child_idx][1]:              # check that its priority is greater than its children
+                    return False
+            cur_idx += 1    
+        return True
 
     # Internal methods used as helper functions
 
@@ -229,17 +242,6 @@ class ArrayMaxHeap:
         return self.index_map[element_title]
 
 
-    def is_valid(self):
-        cur_idx = 0 # start at root
-        first_leaf_idx = self._first_leaf_index()    # leaves will be checked via their parents
-        while cur_idx < first_leaf_idx: # traversing down the tree, verifying valid subtrees
-            cur_priority = self.elements[cur_idx][1]
-            first_child_idx = self._first_child_index(cur_idx)
-            last_child_idx = min(first_child_idx + self.d, len(self.elements))
-            for child_idx in range(first_child_idx, last_child_idx):    # for each node in the tree:
-                if cur_priority < self.elements[child_idx][1]:              # check that its priority is greater than its children
-                    return False
-            cur_idx += 1    
-        return True
+    
 
 
