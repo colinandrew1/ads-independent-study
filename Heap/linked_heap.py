@@ -59,7 +59,9 @@ class ArrayMaxHeap:
             raise IndexError("Heap is empty")
         if self.size() == 1:
             root_title = self.root.get_title()
-            self.delete(self.root)
+            # self.delete(self.root)
+            self.root = None
+            self.num_elements -= 1
             return root_title
         else:
             old_root = self.root
@@ -101,28 +103,27 @@ class ArrayMaxHeap:
         
         if self.size() == 1:
             self.root = None
-
-        # dont need to rebalance if it is the last element in the heap
         
         else:
-            element = self._get_element(element_title)
-            last_element = self._get_last()
+            element = self._get_element(element_title)  # element that will be deleted
+            last_element = self._get_last() # replace with last element, then bubble down the tree as needed
 
-            if element != last_element: # need to potentially rearrange heap
-                old_priority = element.get_priority()
-                replacement_priority = last_element.get_priority()
+            old_priority = element.get_priority()
+            replacement_priority = last_element.get_priority()
 
+            # break connections associated with the last element
+            last_element.get_parent().get_children().remove(last_element)
+            last_element._parent = None
+            # at this point last element is a stand alone HeapObject, it is not a part of the tree
+
+            if element != last_element: # need to (potentially) rebalance if it is not the last element in the heap
                 self._swap(element, last_element)   # shallow swap
-
                 if replacement_priority > old_priority:
                     self._bubble_up(element)
                 if replacement_priority < old_priority:
                     self._push_down(element)
 
-            # need to break connection from last element
-            last_element._parent.get_children().remove(last_element)
-            last_element._parent = None
-            del last_element
+            del last_element    # could do this sooner, but swap() takes 2 HeapObjects
 
         self.elements.remove(element_title)
         self.num_elements -= 1
@@ -185,7 +186,6 @@ class ArrayMaxHeap:
         while len(stack) != 0:
             cur_node = stack.pop(0)
             if len(cur_node.get_children()) > self.d:
-                print("Number of children exceeds branching factor")
                 return False
             for child in cur_node.get_children():
                 if child.get_priority() > cur_node.get_priority():
@@ -249,26 +249,20 @@ class ArrayMaxHeap:
             return self.root
         
         height = int(log((self.num_elements * (self.d - 1)) + 1, self.d))
-        print("+++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
         path = ""
         if log(self.num_elements, self.d).is_integer(): # the first node at the new level 
             for i in range(height+1):
                 path += '0'
         else:
             path = self._convert_to_base(self.d, self.num_elements)
-        print("PATH BEFORE =", path)
         path = path[1:] # remove first value (root) from path
-        print("PATH AFTER =", path)
 
         cur_node = self.root
         while len(path) > 0:
             direction = int(path[0])
             cur_node = cur_node.get_children()[direction]
             path = path[1:] # move one layer down the tree
-        
-        print("LAST ELEMENT =", cur_node.get_title())
-        print("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n")
-        
+
         return cur_node
 
 
