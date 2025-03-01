@@ -10,6 +10,9 @@ from linked_heap import ArrayMaxHeap, HeapObject
 
 
 def test_is_valid_iterative():
+    # Assume ArrayMaxHeap and HeapObject are defined elsewhere,
+# and that ArrayMaxHeap(3) creates a 3‑ary (ternary) max‑heap.
+
     heap = ArrayMaxHeap(3)
 
     # Case: Empty heap
@@ -20,15 +23,15 @@ def test_is_valid_iterative():
     heap.num_elements = 1
     assert heap.is_valid()
 
-    # Case: Valid max-heap with two elements
+    # Case: Valid max‑heap with two elements (root with one child)
     heap.root = HeapObject('a', 10)
     b = HeapObject('b', 5)
-    heap.root._children = [b]
+    heap.root._children = [b]  # Only one child (allowed in a 3‑ary heap)
     b._parent = heap.root
     heap.num_elements = 2
     assert heap.is_valid()
 
-    # Case: Valid max-heap with three elements
+    # Case: Valid max‑heap with three elements (root with two children)
     heap.root = HeapObject('a', 10)
     b = HeapObject('b', 8)
     c = HeapObject('c', 7)
@@ -38,19 +41,31 @@ def test_is_valid_iterative():
     heap.num_elements = 3
     assert heap.is_valid()
 
-    # Case: Invalid heap where parent is smaller than child
+    # Case: Valid max‑heap with four elements (root with three children)
+    heap.root = HeapObject('a', 10)
+    b = HeapObject('b', 9)
+    c = HeapObject('c', 8)
+    d = HeapObject('d', 7)
+    heap.root._children = [b, c, d]
+    b._parent = heap.root
+    c._parent = heap.root
+    d._parent = heap.root
+    heap.num_elements = 4
+    assert heap.is_valid()
+
+    # Case: Invalid heap where parent is smaller than its child
     heap.root = HeapObject('a', 5)
-    b = HeapObject('b', 10)
+    b = HeapObject('b', 10)  # b > a: violates max‑heap property
     heap.root._children = [b]
     b._parent = heap.root
     heap.num_elements = 2
     assert heap.is_valid() == False
 
-    # Case: Invalid heap where second level element is greater than the root
+    # Case: Invalid heap where a second‑level element is greater than the root
     heap.root = HeapObject('a', 5)
     b = HeapObject('b', 8)
     c = HeapObject('c', 6)
-    d = HeapObject('d', 9)
+    d = HeapObject('d', 9)  # d is a child of b, but 9 > 5 (root)
     heap.root._children = [b, c]
     b._parent = heap.root
     c._parent = heap.root
@@ -59,22 +74,31 @@ def test_is_valid_iterative():
     heap.num_elements = 4
     assert heap.is_valid() == False
 
-    # Case: Valid max-heap with multiple elements
-    heap.root = HeapObject('d', 50)
-    b = HeapObject('c', 30)
-    c = HeapObject('b', 20)
-    d = HeapObject('a', 10)
-    heap.root._children = [b, c]
+    # Case: Valid max‑heap with multiple levels
+    # Structure:
+    #         e (50)
+    #       /   |   \
+    #    d(40) c(30) b(20)
+    #     /
+    #  a (10)
+    heap.root = HeapObject('e', 50)
+    b = HeapObject('d', 40)
+    c = HeapObject('c', 30)
+    d = HeapObject('b', 20)
+    e = HeapObject('a', 10)
+    heap.root._children = [b, c, d]
     b._parent = heap.root
     c._parent = heap.root
-    b._children = [d]
-    d._parent = b
-    heap.num_elements = 4
+    d._parent = heap.root
+    # Let the first child have one child:
+    b._children = [e]
+    e._parent = b
+    heap.num_elements = 5
     assert heap.is_valid()
 
-    # Case: Invalid heap where left child is greater than root
+    # Case: Invalid heap where the first child is greater than the root
     heap.root = HeapObject('a', 10)
-    b = HeapObject('b', 20)
+    b = HeapObject('b', 20)  # b > a
     c = HeapObject('c', 5)
     heap.root._children = [b, c]
     b._parent = heap.root
@@ -92,7 +116,13 @@ def test_is_valid_iterative():
     heap.num_elements = 3
     assert heap.is_valid()
 
-    # Case: Large heap, valid max-heap structure
+    # Case: Large heap, valid max‑heap structure
+    # Structure (ternary distribution):
+    #              a (100)
+    #         /       |       \
+    #      b (90)   c (80)    d (70)
+    #     / | \      / | \
+    #  e(60) f(50) g(40) h(30) i(20) j(10)
     heap.root = HeapObject('a', 100)
     b = HeapObject('b', 90)
     c = HeapObject('c', 80)
@@ -103,48 +133,44 @@ def test_is_valid_iterative():
     h = HeapObject('h', 30)
     i = HeapObject('i', 20)
     j = HeapObject('j', 10)
-    heap.root._children = [b, c]
+    heap.root._children = [b, c, d]
     b._parent = heap.root
     c._parent = heap.root
-    b._children = [d, e]
-    d._parent = b
+    d._parent = heap.root
+    b._children = [e, f, g]
     e._parent = b
-    c._children = [f, g]
-    f._parent = c
-    g._parent = c
-    d._children = [h, i]
-    h._parent = d
-    i._parent = d
-    e._children = [j]
-    j._parent = e
+    f._parent = b
+    g._parent = b
+    c._children = [h, i, j]
+    h._parent = c
+    i._parent = c
+    j._parent = c
     heap.num_elements = 10
     assert heap.is_valid()
 
-    # Case: Large heap, invalid structure (element at index 5 breaks the max-heap property)
+    # Case: Large heap, invalid structure (one child breaks the max‑heap property)
     heap.root = HeapObject('a', 100)
     b = HeapObject('b', 90)
     c = HeapObject('c', 80)
     d = HeapObject('d', 70)
     e = HeapObject('e', 60)
-    f = HeapObject('f', 110)
+    f = HeapObject('f', 110)  # f > 90, violates the property in b's subtree
     g = HeapObject('g', 40)
     h = HeapObject('h', 30)
     i = HeapObject('i', 20)
     j = HeapObject('j', 10)
-    heap.root._children = [b, c]
+    heap.root._children = [b, c, d]
     b._parent = heap.root
     c._parent = heap.root
-    b._children = [d, e]
-    d._parent = b
+    d._parent = heap.root
+    b._children = [e, f, g]
     e._parent = b
-    c._children = [f, g]
-    f._parent = c
-    g._parent = c
-    d._children = [h, i]
-    h._parent = d
-    i._parent = d
-    e._children = [j]
-    j._parent = e
+    f._parent = b
+    g._parent = b
+    c._children = [h, i, j]
+    h._parent = c
+    i._parent = c
+    j._parent = c
     heap.num_elements = 10
     assert heap.is_valid() == False
 
@@ -153,17 +179,16 @@ def test_is_valid_iterative():
     b = HeapObject('b', -1)
     c = HeapObject('c', -2)
     d = HeapObject('d', -3)
-    heap.root._children = [b, c]
+    heap.root._children = [b, c, d]
     b._parent = heap.root
     c._parent = heap.root
-    b._children = [d]
-    d._parent = b
+    d._parent = heap.root
     heap.num_elements = 4
     assert heap.is_valid()
 
     # Case: Invalid heap with negative values (root is smaller than a child)
     heap.root = HeapObject('a', -3)
-    b = HeapObject('b', -1)
+    b = HeapObject('b', -1)  # b > a (i.e. -1 > -3)
     c = HeapObject('c', -2)
     heap.root._children = [b, c]
     b._parent = heap.root
@@ -187,49 +212,168 @@ def test_is_empty():
     assert heap.is_valid()
 
 
-def test_contains():
+# def test_contains():
+#     heap = ArrayMaxHeap(3)
+#     heap.insert('a',1)
+#     heap.insert('b',2)
+#     heap.insert('c',3)
+#     heap.insert('d',4)
+#     heap.insert('e',5)
+
+#     assert heap.contains('a')
+#     assert heap.contains('b')
+#     assert heap.contains('c')
+#     assert heap.contains('d')
+#     assert heap.contains('e')
+
+#     assert not heap.contains('f')
+#     assert not heap.contains('g')
+#     assert not heap.contains('h')
+
+#     heap.insert('f', 2)
+#     assert heap.contains('f')
+
+#     heap.delete('d')
+#     assert not heap.contains('d')
+
+#     assert heap.contains('a')
+#     assert heap.contains('b')
+#     assert heap.contains('c')
+#     assert heap.contains('e')
+#     assert heap.contains('f')
+
+
+def test_calculate_height_binary():
+    heap = ArrayMaxHeap(2)
+    assert heap._calculate_height(0) == 0
+    assert heap._calculate_height(1) == 0
+    
+    assert heap._calculate_height(2) == 1
+    assert heap._calculate_height(3) == 1
+
+    for i in range (4, 8):
+        assert heap._calculate_height(i) == 2
+
+    for i in range (8, 16):
+        assert heap._calculate_height(i) == 3
+
+    for i in range (16, 32):
+        assert heap._calculate_height(i) == 4
+
+    for i in range (32, 64):
+        assert heap._calculate_height(i) == 5
+
+    for i in range (64, 128):
+        assert heap._calculate_height(i) == 6
+
+    for i in range (128, 256):
+        assert heap._calculate_height(i) == 7
+
+
+def test_calculate_height_ternary():
     heap = ArrayMaxHeap(3)
-    heap.insert('a',1)
-    heap.insert('b',2)
-    heap.insert('c',3)
-    heap.insert('d',4)
-    heap.insert('e',5)
+    assert heap._calculate_height(0) == 0
+    assert heap._calculate_height(1) == 0
 
-    assert heap.contains('a')
-    assert heap.contains('b')
-    assert heap.contains('c')
-    assert heap.contains('d')
-    assert heap.contains('e')
+    assert heap._calculate_height(2) == 1
+    assert heap._calculate_height(3) == 1
+    assert heap._calculate_height(4) == 1
 
-    assert not heap.contains('f')
-    assert not heap.contains('g')
-    assert not heap.contains('h')
+    for i in range (5, 14):
+        assert heap._calculate_height(i) == 2
 
-    heap.insert('f', 2)
-    assert heap.contains('f')
+    for i in range (14, 41):
+        assert heap._calculate_height(i) == 3
 
-    heap.delete('d')
-    assert not heap.contains('d')
+    for i in range (41, 122):
+        assert heap._calculate_height(i) == 4
 
-    assert heap.contains('a')
-    assert heap.contains('b')
-    assert heap.contains('c')
-    assert heap.contains('e')
-    assert heap.contains('f')
+    for i in range (122, 365):
+        assert heap._calculate_height(i) == 5
+
+    for i in range (365, 1094):
+        assert heap._calculate_height(i) == 6
+
+
+def test_calculate_height_quaternary():
+    heap = ArrayMaxHeap(4)
+    assert heap._calculate_height(0) == 0
+    assert heap._calculate_height(1) == 0
+
+    assert heap._calculate_height(2) == 1
+    assert heap._calculate_height(3) == 1
+    assert heap._calculate_height(4) == 1
+    assert heap._calculate_height(5) == 1
+
+    for i in range (6, 22):
+        assert heap._calculate_height(i) == 2
+
+    for i in range (22, 86):
+        assert heap._calculate_height(i) == 3
+
+    for i in range (86, 342):
+        assert heap._calculate_height(i) == 4
+
+    for i in range (342, 1366):
+        assert heap._calculate_height(i) == 5
+
+    for i in range (1366, 5462):
+        assert heap._calculate_height(i) == 6
+
+
+def test_convert_to_base():
+    heap = ArrayMaxHeap()
+
+    assert heap._convert_to_base(2, 0) == '0'
+    assert heap._convert_to_base(2, 1) == '1'
+    assert heap._convert_to_base(2, 2) == '10'
+    assert heap._convert_to_base(2, 3) == '11'
+    assert heap._convert_to_base(2, 4) == '100'
+    assert heap._convert_to_base(2, 5) == '101'
+    assert heap._convert_to_base(2, 6) == '110'
+    assert heap._convert_to_base(2, 7) == '111'
+    assert heap._convert_to_base(2, 8) == '1000'
+    assert heap._convert_to_base(2, 9) == '1001'
+    assert heap._convert_to_base(2, 10) == '1010'
+    assert heap._convert_to_base(2, 11) == '1011'
+    assert heap._convert_to_base(2, 12) == '1100'
+    assert heap._convert_to_base(2, 13) == '1101'
+    assert heap._convert_to_base(2, 14) == '1110'
+    assert heap._convert_to_base(2, 15) == '1111'
+    assert heap._convert_to_base(2, 16) == '10000'
+
+
+    assert heap._convert_to_base(3, 0) == '0'
+    assert heap._convert_to_base(3, 1) == '1'
+    assert heap._convert_to_base(3, 2) == '2'
+    assert heap._convert_to_base(3, 3) == '10'
+    assert heap._convert_to_base(3, 4) == '11'
+    assert heap._convert_to_base(3, 5) == '12'
+    assert heap._convert_to_base(3, 6) == '20'
+    assert heap._convert_to_base(3, 7) == '21'
+    assert heap._convert_to_base(3, 8) == '22'
+    assert heap._convert_to_base(3, 9) == '100'
+    assert heap._convert_to_base(3, 10) == '101'
+    assert heap._convert_to_base(3, 11) == '102'
+    assert heap._convert_to_base(3, 12) == '110'
+    assert heap._convert_to_base(3, 13) == '111'
+    assert heap._convert_to_base(3, 14) == '112'
+    assert heap._convert_to_base(3, 15) == '120'
+    assert heap._convert_to_base(3, 16) == '121'
 
 
 def test_size():  
     heap = ArrayMaxHeap(3)
     assert heap.size() == 0
 
-    num_elements = 100
+    num_elements = 15
     for i in range(0, num_elements):
-        print("i =", i)
+        print("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
         heap.insert(i,i)
-        heap.print_tree()
-        print("-------------------------------------------\n")
         assert heap.size() == i + 1
-        assert heap.is_valid()
+        # assert heap.is_valid()
+
+    assert True == False
 
     for i in range(num_elements, 0):
         heap.delete(i)

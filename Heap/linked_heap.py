@@ -4,7 +4,7 @@
 # Description: Linked implementation of a Max Heap
 # -----------------------------------------------------------------------------
 
-from math import log
+from math import log, ceil
 
 class HeapObject:
     def __init__(self, element_title, element_priority):
@@ -79,8 +79,11 @@ class ArrayMaxHeap:
             raise IndexError("Element already exists within heap, duplicates not allowed")
         self.elements.add(element_title)
         new_element = HeapObject(element_title, element_priority)
-        self._add_to_end(new_element)
-        self._bubble_up(new_element)
+        self._add_to_end(new_element)   # issue here?
+        self.print_tree()
+        print("-----------------------------------\n")
+        self._bubble_up(new_element)    # seems to work fine
+        self.print_tree()
     
 
     def update(self, element_title, new_priority):
@@ -186,7 +189,7 @@ class ArrayMaxHeap:
         while len(stack) != 0:
             cur_node = stack.pop(0)
             if len(cur_node.get_children()) > self.d:
-                return False
+                raise ValueError ("Number of children exceeds branching factor")
             for child in cur_node.get_children():
                 if child.get_priority() > cur_node.get_priority():
                     return False
@@ -220,16 +223,28 @@ class ArrayMaxHeap:
             self.root = element
         else:
             new_num_elements = self.num_elements + 1
-            height = int(log((new_num_elements * (self.d - 1)) + 1, self.d))
+            new_height = self._calculate_height(new_num_elements)   # height after adding new element
+            old_height = self._calculate_height(self.num_elements)
+            print("New num elements = ", new_num_elements)
+            print("New Height = ", new_height)
+            print("Old Height = ", old_height)
+            print()
 
-            path = ""
-            if log(new_num_elements, self.d).is_integer():
-                for i in range(height+1):
-                    path += '0'
+            path = "" 
+            if new_height > old_height:  # starting a new level in the tree
+                print("STARTING A NEW LEVEL")
+                for i in range(old_height):     # stop at laft most node in current tree, this node will be the parent
+                    path += '0' # indicates left most child (heap is complete tree)
+
+                print("Path =", path)
             else:
                 path = self._convert_to_base(self.d, new_num_elements)
-            path = path[1:] # remove first value (root) from path
-            path = path[:-1] # remove last element from path (stop at "parent to be")
+                print("Path Before =", path)
+                path = path[1:] # remove first value (root) from path
+                path = path[:-1] # remove last element from path (stop at "parent to be")
+                print("Path After =",  path)
+
+            print()
 
 
             cur_node = self.root
@@ -247,23 +262,19 @@ class ArrayMaxHeap:
         # assume heap is non-empty if this method gets called
         if self.size() == 1:
             return self.root
-        
-        height = int(log((self.num_elements * (self.d - 1)) + 1, self.d))
-        path = ""
-        if log(self.num_elements, self.d).is_integer(): # the first node at the new level 
-            for i in range(height+1):
-                path += '0'
-        else:
-            path = self._convert_to_base(self.d, self.num_elements)
-        path = path[1:] # remove first value (root) from path
 
-        cur_node = self.root
-        while len(path) > 0:
-            direction = int(path[0])
-            cur_node = cur_node.get_children()[direction]
-            path = path[1:] # move one layer down the tree
+        stack = [HeapObject]
+        stack.append(self.root)
+        last = stack[len(stack)-1]
+        while len(stack) > 0:
+            cur_node = stack.pop(0)
+            children = cur_node.get_children()
+            for i in range(len(children), 0, -1):
+                stack.insert(0, children[i])
+            last = stack[len(stack)-1]
+        return last
+            
 
-        return cur_node
 
 
     def _convert_to_base(self, base, n):
@@ -316,3 +327,8 @@ class ArrayMaxHeap:
                 self._print_node(child, level + 1)
 
 
+    def _calculate_height(self, n:int): # could just traverse down the tree and track each step
+        if n == 0:
+            return 0
+        return ceil(log((self.d - 1) * n + 1, self.d)) - 1
+    
