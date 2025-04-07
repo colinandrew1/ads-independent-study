@@ -1,0 +1,2 @@
+Extended delete trace:
+https://azrael.digipen.edu/~mmead/www/Courses/CS280/Trees-2-3-4-delete.html

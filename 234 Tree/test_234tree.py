@@ -49,7 +49,7 @@ def test_split_internal_node():
     tree.print_tree()
 
 
-def test_tree_from_notes():
+def test_insert_tree_from_notes():
     tree = TwoThreeFourTree()
     print("Inserting 1,7,11")
     tree.insert(1,1)
@@ -82,9 +82,105 @@ def test_tree_from_notes():
     tree.insert(5,5)
     tree.print_tree()
 
-    print(tree.sorted_keys())
-
-    assert True == False
+    # assert True == False
 
 
+def test_delete():
+    # build the tree from the leaves up
+    leaf_a = TreeNode()
+    leaf_a.kv_pairs.append(('A','A'))
+    leaf_a.kv_pairs.append(('B','B'))
+
+    leaf_b = TreeNode()
+    leaf_b.kv_pairs.append(('E','E'))
+    leaf_b.kv_pairs.append(('F','F'))
+
+    leaf_c = TreeNode()
+    leaf_c.kv_pairs.append(('N','N'))
+
+    leaf_d = TreeNode()
+    leaf_d.kv_pairs.append(('R','R'))
+    leaf_d.kv_pairs.append(('S','S'))
+
+    leaf_e = TreeNode()
+    leaf_e.kv_pairs.append(('X','X'))
+    leaf_e.kv_pairs.append(('Y','Y'))
+    leaf_e.kv_pairs.append(('Z','Z'))
+
+    internal_a = TreeNode()
+    internal_a.kv_pairs.append(('C','C'))
+    internal_a.kv_pairs.append(('H','H'))
+
+    internal_b = TreeNode()
+    internal_b.kv_pairs.append(('V','V'))
+
+    internal_a.children = [leaf_a, leaf_b, leaf_c]
+    internal_b.children = [leaf_d, leaf_e]
+
+    tree = TwoThreeFourTree()
+    tree.root = TreeNode('P','P')
+    tree.root.children = [internal_a, internal_b]
+
+    tree.print_tree()
+
+    # Start deleting nodes in the order: A N H R C P E F V B X Y S Z
+    # This tree/order cover all delete cases
+    
+    print("Delete A")
+    tree.delete('A')    # Case 1
+    tree.print_tree()
+
+    print("Delete N")
+    tree.delete('N')  # Case 3.1
+    tree.print_tree()
+
+    print("Delete H")
+    tree.delete('H')  # Case 3.2
+    tree.print_tree()
+
+    print("Delete R")
+    tree.delete('R')  # Case 1
+    tree.print_tree()
+
+    print("Delete C")
+    tree.delete('C')  # Case 2.2
+    tree.print_tree()
+
+    print("Delete P")
+    tree.delete('P')  # Case 2.3
+    tree.print_tree()
+
+    print("Delete E")
+    tree.delete('E')  # Case 2.2
+    tree.print_tree()
+
+    print("Delete F")
+    tree.delete('F')  # Case 2.3
+    tree.print_tree()
+
+    print("Delete V")
+    tree.delete('V')  # Case 2.1
+    tree.print_tree()
+
+    print("Delete B")
+    tree.delete('B')  # Case 3.1
+    tree.print_tree()
+
+    print("Delete X")
+    tree.delete('X')  # Case 2.2
+    tree.print_tree()
+
+    print("Delete Y")
+    tree.delete('Y')  # Case 2.3
+    tree.print_tree()
+
+    print("Delete S")
+    tree.delete('S')  # Case 1
+    tree.print_tree()
+
+    print("Delete Z")
+    tree.delete('Z')  # Case 1
+    tree.print_tree()
+
+    # assert True == False
 

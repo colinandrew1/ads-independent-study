@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------------------
 # Author: Colin McClelland
-# Date: 3/4/25
+# Date: 3/18/25
 # Description: Implementation of a 234 Tree
 # -----------------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ class TreeNode:
     MIDDLE = 1
     RIGHT = 2
 
-    def __init__(self, key, value):
+    def __init__(self, key=None, value=None):
         if key is None: self.kv_pairs = [] 
         else: 
             self.kv_pairs = [(key, value)]  # k-v pairs maintained as a list of tuples (key, value)
@@ -90,6 +90,20 @@ class TreeNode:
             self.children.insert(i, child_node)
 
 
+    def contains(self, key):
+        for i in range(self.num_keys()):
+            if self.kv_pairs[i][0] == key:  # kv pairs stored as tuple
+                return i
+        return None
+    
+
+    def remove(self, key):
+        for i in range(len(self.kv_pairs)):
+            if self.key(i) == key:
+                del self.kv_pairs[i]
+                break        
+
+        
 
 class TwoThreeFourTree:
     LEFT = 0
@@ -149,8 +163,96 @@ class TwoThreeFourTree:
 
 
     def delete(self, search_key):
-        return True
-    
+        if self.root is not None: self.delete_recursive(search_key, self.root)
+        else: raise ValueError("Tree is empty")
+
+
+    def delete_recursive(self, search_key, cur_node:TreeNode):
+        if cur_node.is_leaf():
+            # print(cur_node)
+            print("Case 1")
+            if cur_node.contains(search_key) is not None: cur_node.remove(search_key)   # Case 1 -- contains() returns index if key not present, None otherwise
+            else: raise KeyError("Key does not exist within tree")
+
+        else:   # cur node is an internal node
+            key_idx = cur_node.contains(search_key) 
+            if key_idx is not None: # Case 2, present within current internal node
+                left_child = cur_node.child(key_idx)
+                right_child = cur_node.child(key_idx+1)
+
+                if left_child.num_keys() >= 2:   # case 2.1: replace w predecessor then recursively delete predecessor from child
+                    print("Case 2.1")
+                    predecessor = left_child.pairs(left_child.num_keys()-1)  # predecessor is the last key in the left child
+                    cur_node.kv_pairs[key_idx] = predecessor
+                    self.delete_recursive(predecessor[0], left_child)   # predecessor is a tuple
+                
+                elif right_child.num_keys() >= 2:    # case 2.2
+                    print("Case 2.2")
+                    successor = right_child.pairs(0)
+                    cur_node.kv_pairs[key_idx] = successor
+                    self.delete_recursive(successor[0], right_child)
+                
+                else:   # case 2.3: both L,R children have 1 key -> merge case
+                    print("Case 2.3")
+                    left_child.insert(right_child.kv_pairs[0])  # we know the right child has only 1 key
+                    left_child.insert(cur_node.kv_pairs[key_idx]) # insert the key into the merged node (will be at the middle position)
+                    cur_node.kv_pairs.remove(cur_node.pairs(key_idx))
+                    if right_child.children is not None:
+                        for child in right_child.children:  # have to reassign children of right child to left child
+                            left_child.insert_child(child)
+                    cur_node.children.remove(right_child)
+                    del right_child # have to remove the parents reference to the child
+                    if self.root.num_keys() == 0:
+                        self.root = left_child
+                    self.delete_recursive(search_key, left_child)
+                    
+
+            else:   # Case 3: we must first find the appropriate child, then proceed
+                i = 0
+                while i < cur_node.num_keys() and search_key > cur_node.key(i): 
+                    i += 1
+                parent_idx = i-1 if i == cur_node.num_keys() else i # in the case that the search key is > than largest key in the parent, we must search the rightmost child but parent key (potentially used in restructuring) is one spot to the left. If not, then child_idx == parent_idx
+                # at this point, we have identified the appropriate path to the search key
+                if cur_node.child(i).num_keys() == 1:   # restructuring of the tree is required to ensure safe delete
+                    left_sibling = None if i == 0 else cur_node.child(i-1) #if i > 0 else None   # the left-most child cant have a left sibling
+                    right_sibling = None if i == cur_node.num_keys() else cur_node.child(i+1) # if i < cur_node.num_keys() else None   # nor can the right most have a right sibling, but that will never happen here
+                    
+                    if left_sibling is not None and left_sibling.num_keys() >= 2:    # case 3.1: left sibling of appropriate child has 2+ keys
+                        print("Case 3.1")
+                        cur_node.child(i).insert(cur_node.pairs(parent_idx))  # push the key from the parent to the child
+                        cur_node.kv_pairs.remove(cur_node.pairs(parent_idx)) # remove the key from the parent
+                        left_sibling_key = left_sibling.pairs(left_sibling.num_keys()-1)
+                        cur_node.insert(left_sibling_key)   # move the right most key in the left child to the parent
+                        left_sibling.kv_pairs.remove(left_sibling_key) # remove that key from the left sibling
+                    
+                    elif right_sibling is not None and right_sibling.num_keys() >= 2:   # case 3.1: right sibling has 2+ keys
+                        print("Case 3.1")
+                        cur_node.child(i).insert(cur_node.pairs(parent_idx))
+                        cur_node.kv_pairs.remove(cur_node.pairs(parent_idx))
+                        right_sibling_key = right_sibling.pairs(0)
+                        cur_node.insert(right_sibling_key)
+                        right_sibling.kv_pairs.remove(right_sibling_key)
+
+                    else:   # case 3.2: both siblings have only 1 key -> merge case
+                        print("Case 3.2")
+                        # maybe need to check if L and R sibling are None
+                        # need to check that appropriate child is not the rightmost becasue it wont have a right sibling
+                        if right_sibling is None: # if right sibling is None, then the appropriate child is the rightmost node and therfore does not have a righmost sibling
+                            right_sibling = cur_node.child(i)
+                            i -= 1  # have to continue the search from the merged node, which is the left sibling
+                        # elif left_sibling is None: left_sibling = cur_node.child(i) # similiar logic as the above
+                        left_sibling.insert(right_sibling.pairs(0))    # merge right sibling into the right sibling - we know right sibling only has 1 key.
+                        left_sibling.insert(cur_node.pairs(parent_idx))# add a key from the parent into the merged node
+                        cur_node.kv_pairs.remove(cur_node.pairs(parent_idx))    # remove the pushed key from the parent
+                        cur_node.children.remove(right_sibling) # remove the parents reference to the right child
+                        if right_sibling.children is not None:  # if the right sibling (the node that was merged in) has children, we must assign its children to the left sibling
+                            for child in right_sibling.children:
+                                left_sibling.insert_child(child)
+                        del right_sibling # free the right sibling
+                        if self.root.num_keys() == 0:  # check if root was "deleted" if so make left child the root
+                            self.root = left_sibling
+                self.delete_recursive(search_key, cur_node.child(i))    # continue the search from the appropriate child
+                
 
     def sorted_keys(self):
         if self.root:
@@ -178,7 +280,7 @@ class TwoThreeFourTree:
             node, level = queue.pop(0)
 
             if level > current_level:
-                print()
+                print() # start a new line (for visual purposes)
                 current_level = level
             
             node_str = "["
