@@ -17,10 +17,9 @@ class BloomFilter():
         
 
     def contains(self, key):
-        # hash the key to indices of the bit array
         # if all indices are set to 1 return true, else false
         for i in range(self.num_hashes):
-            index = mmh3.hash(key, i) % self.size
+            index = mmh3.hash(key, i) % self.size   # hash the key to indices of the bit array
             if self.bit_array[index] == 0:
                 return False    # key is definitely not present
         return True    # key is most likely present
