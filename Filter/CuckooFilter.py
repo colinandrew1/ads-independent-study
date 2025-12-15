@@ -10,6 +10,7 @@ from bitarray.util import int2ba
 import math
 import mmh3 # provides "a set of fast and robust non-cryptographic hash functions"
 import random
+import time
 
 
 class CuckooFilter():
@@ -121,3 +122,56 @@ class CuckooFilter():
 
     def print_table(self):
         print(self.table)
+
+
+    def benchmark_insert(self, n, seed=0):
+        rng = random.Random(seed)
+        keys = [str(x) for x in rng.sample(range(n*10), n)]
+        start = time.perf_counter()
+        for k in keys:
+            self.insert(k)
+        return time.perf_counter() - start
+
+
+    def benchmark_lookup(self, n, seed=0):
+        rng = random.Random(seed)
+        keys = [str(x) for x in rng.sample(range(n*10), n)]
+        for k in keys:
+            self.insert(k)
+        start = time.perf_counter()
+        for k in keys:
+            self.contains(k)
+        return time.perf_counter() - start
+
+
+    def benchmark_false_positive_rate(self, n, num_queries=10000, seed=0):
+        rng = random.Random(seed)
+        inserted = [str(x) for x in rng.sample(range(n*10), n)]
+        queries = [str(x) for x in rng.sample(range(n*20, n*30), num_queries)]
+        for k in inserted:
+            self.insert(k)
+        false_positives = sum(self.contains(q) for q in queries)
+        return false_positives / num_queries
+    
+
+    def benchmark_delete(self, n, seed=0):
+        rng = random.Random(seed)
+        keys = [str(x) for x in rng.sample(range(n*10), n)]
+        for k in keys:
+            self.insert(k)
+        start = time.perf_counter()
+        for k in keys:
+            self.delete(k)
+        return time.perf_counter() - start
+    
+    
+    def benchmark_parameter_sensitivity(self, n, bucket_sizes=[2,4,8], fp_rates=[0.01,0.05,0.1], seed=0):
+        results = []
+        for b in bucket_sizes:
+            for f in fp_rates:
+                cf = CuckooFilter(target_fp_rate=f, max_num_elements=n, bucket_size=b)
+                insert_time = cf.benchmark_insert(n, seed)
+                lookup_time = cf.benchmark_lookup(n, seed)
+                fpr = cf.benchmark_false_positive_rate(n, num_queries=n, seed=seed)
+                results.append({"bucket_size": b,"target_fp": f,"insert_time": insert_time, "lookup_time": lookup_time, "fpr": fpr})
+        return results

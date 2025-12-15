@@ -1,0 +1,8 @@
+pytest
+random
+time
+bitarray
+mmh3
+jupyter
+ipykernel
+matplotlib

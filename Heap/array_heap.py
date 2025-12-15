@@ -4,6 +4,9 @@
 # Description: Array implementation of a Max Heap based on the description from Advanced Algorithms and Data Structures by Marello La Roca
 # -----------------------------------------------------------------------------
 
+import random
+import time
+
 
 """
     A class to represent a max heap data structure.
@@ -242,6 +245,32 @@ class ArrayMaxHeap:
         return self.index_map[element_title]
 
 
+    def benchmark_insert(self, num_elements, seed=0):
+        rng = random.Random(seed)
+        self.clear_heap()
+
+        start_time = time.perf_counter()
+        for i in range(num_elements):
+            self.insert(i, rng.randint(0, num_elements))
+        end_time = time.perf_counter()
+
+        return end_time - start_time
     
+
+    def benchmark_delete(self, num_elements, seed=0):
+        rng = random.Random(seed)
+        self.clear_heap()
+
+        for i in range(num_elements):
+            self.insert(i, rng.randint(0, num_elements))
+
+        start_time = time.perf_counter()
+        while not self.is_empty():
+            self.top()
+        end_time = time.perf_counter()
+
+        return end_time - start_time
+
+
 
 

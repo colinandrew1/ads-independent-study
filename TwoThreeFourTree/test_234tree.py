@@ -3,7 +3,6 @@ from Tree import TreeNode, TwoThreeFourTree
 
 def test_empty_tree():
     tree = TwoThreeFourTree()
-    assert tree.num_elements == 0
     assert tree.root == None
 
 
@@ -84,6 +83,81 @@ def test_insert_tree_from_notes():
 
     # assert True == False
 
+
+def test_insert_sequence():
+    tree = TwoThreeFourTree()
+    tree.insert(81,81)
+    tree.insert(14,14)
+    tree.insert(3,3)
+    tree.insert(94,94)
+    tree.insert(35,35)
+    tree.insert(31,31)
+    tree.insert(28,28)
+    tree.insert(17,17)
+    tree.print_tree()
+    tree.insert(13,13)
+    tree.print_tree()
+    tree.insert(86,86)
+    tree.insert(69,69)
+
+    # assert True == False
+
+
+
+
+# def test_tree_delete():
+#     tree = TwoThreeFourTree()
+#     tree.insert(81, 81)
+#     tree.insert(14, 14)
+#     tree.insert(3, 3)
+#     tree.insert(94, 94)
+#     tree.insert(35, 35)
+#     tree.insert(31, 31)
+#     tree.insert(28, 28)
+#     tree.insert(17, 17)
+#     tree.insert(13, 13)
+#     tree.insert(86, 86)
+#     tree.insert(69, 69)    
+    
+#     tree.print_tree()
+#     print()
+
+#     tree.delete(81)
+#     tree.print_tree()
+
+#     tree.delete(14)
+#     tree.print_tree()
+
+#     tree.delete(3)
+#     tree.print_tree()
+
+#     tree.delete(94)
+#     tree.print_tree()
+
+#     tree.delete(35)
+#     tree.print_tree()
+
+#     tree.delete(31)
+#     tree.print_tree()
+
+#     tree.delete(28)
+#     tree.print_tree()
+
+#     tree.delete(17)
+#     tree.print_tree()
+
+#     tree.delete(13)
+#     tree.print_tree()
+
+#     tree.delete(86)
+#     tree.print_tree()
+
+#     tree.delete(69)
+#     tree.print_tree()
+
+
+#     assert True == False
+    
 
 def test_delete():
     # build the tree from the leaves up

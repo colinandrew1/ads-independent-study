@@ -127,9 +127,39 @@ def test_delete():
         list.insert(i,i)
     assert list.is_valid()
     print(list)
+
+    print("Deleting 3")
     list.delete(3)
     print(list)
     assert list.search(3) == None
     assert list.is_valid()
+
+    print("Deleting 1")
+    list.delete(1)
+    print(list)
+    assert list.search(1) == None
+    assert list.is_valid()
+
+
+    print("Deleting 0")
+    list.delete(0)
+    print(list)
+    assert list.search(0) == None
+    assert list.is_valid()
+
+
+    print("Deleting 2")
+    list.delete(2)
+    print(list)
+    assert list.search(2) == None
+    assert list.is_valid()
+
+
+    print("Deleting 4")
+    list.delete(4)
+    print(list)
+    assert list.search(4) == None
+    assert list.is_valid()
+
     # assert True == False
 

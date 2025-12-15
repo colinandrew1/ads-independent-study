@@ -6,6 +6,9 @@
 
 import math
 import heapq
+import random
+import time
+
 
 class VPNode:
     def __init__(self, point, threshold, left=None, right=None):
@@ -77,7 +80,7 @@ class VPTree:
 
         self.search(nearer, target, k, heap)
        
-        if (len(heap) < k) or ((distance_squared - node.threshold) ** 2 < -heap[0][0]):
+        if (len(heap) < k) or (abs(distance_squared - node.threshold) < -heap[0][0]):
             self.search(farther, target, k, heap)
 
 
@@ -91,3 +94,23 @@ class VPTree:
             result.append((math.sqrt(-neg_d2), p))
         result.reverse()
         return result
+    
+
+    def benchmark_build(self, num_points, seed=0):
+        rng = random.Random(seed)
+        points = [(rng.random(), rng.random()) for i in range(num_points)]
+        start_time = time.perf_counter()
+        self.root = self.build_tree(points)
+        return time.perf_counter() - start_time
+
+
+    def benchmark_query(self, num_points, k=3, seed=0):
+        rng = random.Random(seed)
+        points = [(rng.random(), rng.random()) for index in range(num_points)]
+        self.root = self.build_tree(points)
+
+        start_time = time.perf_counter()
+        for point in points:
+            self.query(point, k=k)
+        end_time = time.perf_counter()
+        return end_time - start_time

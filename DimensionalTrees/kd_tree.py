@@ -6,14 +6,15 @@
 
 import heapq
 import math
+import time
+import random
 
 class KDNode:
     def __init__(self, point, axis, left=None, right=None):
         self.point = point      # each node reprresents a point in space
         self.axis = axis        # the dimension in the node that is used for comparisons
         self.left = left        # all points in the left subtree have a value less than the current point in the specified dimension
-        self.right = right      
-
+        self.right = right     
 
 
 class KDTree:
@@ -98,3 +99,22 @@ class KDTree:
         nearest.reverse()   # have to reverse bc of heap property
         return nearest
 
+
+    def benchmark_build(self, num_points, seed=0):
+        rng = random.Random(seed)
+        points = [(rng.random(), rng.random()) for i in range(num_points)]
+        start_time = time.perf_counter()
+        self.root = self.build_tree(points)
+        return time.perf_counter() - start_time
+
+
+    def benchmark_query(self, num_points, k=3, seed=0):
+        rng = random.Random(seed)
+        points = [(rng.random(), rng.random()) for index in range(num_points)]
+        self.root = self.build_tree(points)
+
+        start_time = time.perf_counter()
+        for point in points:
+            self.query(point, k=k)
+        end_time = time.perf_counter()
+        return end_time - start_time
